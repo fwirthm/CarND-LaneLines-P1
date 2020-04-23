@@ -1,4 +1,4 @@
-This project is a fork of the lane marking detection project within Udacity's Self Driving Car Engineer Nanodegree Program. A decription of my implementation can be found in the writeup.md
+This project is a fork of the lane marking detection project within Udacity's Self Driving Car Engineer Nanodegree Program. A decription of my implementation can be found below the original project decription.
 The code is included in the IPython notebook P1.ipynb
 
 # **Finding Lane Lines on the Road** 
@@ -18,42 +18,128 @@ To complete the project, two files will be submitted: a file containing project 
 To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
 
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
 
-1. Describe the pipeline
+# **Finding Lane Lines on the Road** 
 
-2. Identify any shortcomings
+## Writeup
 
-3. Suggest possible improvements
+**Finding Lane Lines on the Road**
 
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
-
-
-The Project
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
 ---
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+### Reflection
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) if you haven't already.
+### 1. Description of the image processing pipeline. 
 
-**Step 2:** Open the code in a Jupyter Notebook
+The pipeline consists of 5 steps to detect lane markings in an original image (cf. Fig. 1). 
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out [Udacity's free course on Anaconda and Jupyter Notebooks](https://classroom.udacity.com/courses/ud1111) to get started.
+<figure>
+ <img src="./test_images/solidYellowCurve2.jpg" width="380" alt="original image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 1: original image </p> 
+ </figcaption>
+</figure>
+ <p></p> 
 
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
+First, the images are converted to grayscale (cf. Fig. 2), then edges are detected with a canny edge detection (params: low_thresh=70, high_thresh=240) (cf. Fig. 3)
 
-`> jupyter notebook`
+<figure>
+ <img src="./test_images_output/gray/solidYellowCurve2.jpg" width="380" alt="grayscale image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 2: grayscale image </p> 
+ </figcaption>
+</figure>
+ <p></p>
+ 
+ <figure>
+ <img src="./test_images_output/canny/solidYellowCurve2.jpg" width="380" alt="canny image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 3: edges detected with canny algorithm </p> 
+ </figcaption>
+</figure>
+ <p></p> 
 
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
 
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
+Afterwards, only lines within the region of interest ([[(580, 340), (420, 340), (140, 540), (900, 540)]]) are selected (cf. Fig. 4).
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+<figure>
+ <img src="./test_images_output/roi/solidYellowCurve2.jpg" width="380" alt="roi image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 4: edges within the region of interest </p> 
+ </figcaption>
+</figure>
+ <p></p>
+
+In order creat smoother and also longer line segments a gaussian blurring (kernel size=3) is applied to the edge image (cf. Fig. 5).
+
+<figure>
+ <img src="./test_images_output/blurred/solidYellowCurve2.jpg" width="380" alt="blurred image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 5: blurred edges within the region of interest </p> 
+ </figcaption>
+</figure>
+ <p></p>
+ 
+ 
+Afterwards, the created edges are tranformed to hough space (rho=2, theta=3*(np.pi/180), threshold=30, min_line_len=20, max_line_gap=4), where the longest line belonging to the left and right marking respectively is determined (cf. Fig. 6). Afterwards, the determined lines are exctended up to the lower edge of the picture and the upper border of the region of interest (or in the special case of intersection lines up to the intersection point). In addition, the lateral extend of the markings is estimated and the entire constructed marking is drawn.
+
+To do so, the original draw_lines() function was modified as follows:
+* the actual calculation of the lines was moved to a seperate function (calc_lines()) in order to be accesible from another function draw_markigns() as well
+* the calc_lines() function expects the image and the hough lines as input and determines the longest line belonging to the left and right border respectively and returns it
+* the draw_markings() and hough_markings() functions were defined - they draw the markings as polygons instead as lines
+
+
+<figure>
+ <img src="./test_images_output/hough/solidYellowCurve2.jpg" width="380" alt="lines image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 6: extended longest line belonging to the left and right marking (red); estimated outer borders of the markings (blue) </p> 
+ </figcaption>
+</figure>
+ <p></p>
+
+Back in the original image, the constructed lines can be shown as overlay (cf. Fig. 7).
+
+<figure>
+ <img src="./test_images_output/weighted/solidYellowCurve2.jpg" width="380" alt="combined image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 7: original image overlayed with estimated lane markings as lines </p> 
+ </figcaption>
+</figure>
+ <p></p>
+
+The constructed lines are converted to a polygon spanning over the full extend of the markings (cf. Fig. 8).
+
+<figure>
+ <img src="./test_images_output/final/solidYellowCurve2.jpg" width="700" alt="combined image" />
+ <figcaption>
+ <p></p> 
+ <p style="text-align: center;"> Fig. 8: original image overlayed with estimated lane markings as polygons </p> 
+ </figcaption>
+</figure>
+ <p></p>
+
+### 2. Shortcomings with the current pipeline
+
+The current pipeline shows some minor shortcomings:
+
+* The detection of dashed lines is not as stable as the one of solid lines. The reasons is that the approach uses the longest line as reference and as the car is moving along the dashed line, the reference is continously changing.
+* The approach uses the longest line as reference and extends it with a small amount of pixels to the left and to the right. But as it is not known, wether the current line belongs to the right or left border of the considered marking it is not clear, into which direction, the line should be extended more than to the other. In some rarely occuring situations, this also leads to instabilities.
+* In the challenging example, it is hard to detect lines in the shadowed region. In addition, the road rather curvy - therefore, it is a bad idea to estimate the the markings with single lines.
+
+### 3. Possible improvements to the pipeline
+The described shortcoming could be fixed as follows:
+
+* In order to create smoother lane markings, a smoothing over consecutive pictures of the video stream could be applied.
+* To get better line approximation in shadowed regions, the parameters could be tuned further or other color spaces could be tried out.
+* For curvy roads, for exaymple, a polynom of third order could be used to approximate the lane markings.
 
