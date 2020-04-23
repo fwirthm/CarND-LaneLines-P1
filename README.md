@@ -1,3 +1,6 @@
+This project is a fork of the lane marking detection project within Udacity's Self Driving Car Engineer Nanodegree Program. A decription of my implementation can be found in the writeup.md
+The code is included in the IPython notebook P1.ipynb
+
 # **Finding Lane Lines on the Road** 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
