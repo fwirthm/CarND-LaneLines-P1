@@ -1,29 +1,13 @@
-This project is a fork of the lane marking detection project within Udacity's Self Driving Car Engineer Nanodegree Program. A decription of my implementation can be found below the original project decription.
-The code is included in the IPython notebook P1.ipynb
-
 # **Finding Lane Lines on the Road** 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+This project belongs to my work towards Udacitys 'Self-Driving Car Engineer' Nanodegree. The general project goal is to detect lane lines in images using Python and OpenCV. A decription of my implementation can be found below the original project decription.
+The code is included in the IPython notebook P1.ipynb
 
-Overview
+The Project
 ---
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
-
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
-
-
-
-# **Finding Lane Lines on the Road** 
-
-## Writeup
-
-**Finding Lane Lines on the Road**
+The goals / steps of this project are the following:
 
 The goals / steps of this project are the following:
 * Make a pipeline that finds lane lines on the road
@@ -65,7 +49,6 @@ First, the images are converted to grayscale (cf. Fig. 2), then edges are detect
 </figure>
  <p></p> 
 
-
 Afterwards, only lines within the region of interest ([[(580, 340), (420, 340), (140, 540), (900, 540)]]) are selected (cf. Fig. 4).
 
 <figure>
@@ -88,14 +71,12 @@ In order creat smoother and also longer line segments a gaussian blurring (kerne
 </figure>
  <p></p>
  
- 
 Afterwards, the created edges are tranformed to hough space (rho=2, theta=3*(np.pi/180), threshold=30, min_line_len=20, max_line_gap=4), where the longest line belonging to the left and right marking respectively is determined (cf. Fig. 6). Afterwards, the determined lines are exctended up to the lower edge of the picture and the upper border of the region of interest (or in the special case of intersection lines up to the intersection point). In addition, the lateral extend of the markings is estimated and the entire constructed marking is drawn.
 
 To do so, the original draw_lines() function was modified as follows:
 * the actual calculation of the lines was moved to a seperate function (calc_lines()) in order to be accesible from another function draw_markigns() as well
 * the calc_lines() function expects the image and the hough lines as input and determines the longest line belonging to the left and right border respectively and returns it
 * the draw_markings() and hough_markings() functions were defined - they draw the markings as polygons instead as lines
-
 
 <figure>
  <img src="./test_images_output/hough/solidYellowCurve2.jpg" width="380" alt="lines image" />
